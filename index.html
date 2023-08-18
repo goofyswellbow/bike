@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - geometry hierarchy</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+            body {
+	            background-color: black;
+	            color: white;
+	        }
+	        #controls {
+	            position: absolute;
+	            top: 10px;
+	            left: 10px;
+	        }
+	    </style>
+	</head>
+	<body>
+    <div id="controls">
+        
+        <label for="A_length">A Length: </label><input id="A_length" type="range" min="1" max="40" step="0.1" value="21"><br>
+        <label for="B_length">B Length: </label><input id="B_length" type="range" min="1" max="20" step="0.1" value="8.5"><br>
+        <label for="B_angle">B Angle: </label><input id="B_angle" type="range" min="-90" max="90" step="1" value="15"><br>
+        <label for="B_drop">B Drop: </label><input id="B_drop" type="range" min="-10" max="10" step="0.1" value="0"><br>
+        <label for="A_end_Y">A End Y_NULL: </label><input id="A_end_Y" type="range" min="0" max="20" step="0.1" value="9"><br>
+        <label for="D_length">D Length_NULL: </label><input id="D_length" type="range" min="1" max="10" step="0.1" value="3"><br>
+        <label for="H_length">H Length: </label><input id="H_length" type="range" min="1" max="10" step="0.1" value="3"><br>
+        <label for="D_angle">D Angle: </label><input id="D_angle" type="range" min="-90" max="90" step="1" value="-15"><br>
+        <label for="F_length">F Length: </label><input id="F_length" type="range" min="0" max="30" step="0.1" value="12"><br>
+        <label for="T_length">T Length: </label><input id="T_length" type="range" min="0" max="3" step="0.1" value="1"><br>
+        <label for="S_length">S Length: </label><input id="S_length" type="range" min="1" max="20" step="0.1" value="13"><br>
+        <label for="W1_size">W1 Size: </label><input id="W1_size" type="range" min="1" max="30" step="0.1" value="10"><br>
+        <label for="W2_size">W2 Size: </label><input id="W2_size" type="range" min="1" max="30" step="0.1" value="10"><br>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="bike.js"></script>
+    
+</body>
+</html>
