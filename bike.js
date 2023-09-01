@@ -1,13 +1,11 @@
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 25;
+camera.position.z = 50;
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
-
 
 function updateLines() {
   // Clear the scene by removing all objects
@@ -28,6 +26,8 @@ function updateLines() {
   const F_length = parseFloat(document.getElementById('F_length').value); // New parameter
   const S_length = document.getElementById('S_length').value;
   const T_length = parseFloat(document.getElementById('T_length').value);
+  const W1_size = parseFloat(document.getElementById('W1_size').value); 
+  const W2_size = parseFloat(document.getElementById('W2_size').value); 
 
   // Hypotenuse value (c) and A_end_Y calculation
   const c = parseFloat(F_length) + parseFloat(H_length); // convert F_length to a number and add 5
@@ -108,8 +108,67 @@ function updateLines() {
     pointsToRotate[i].copy(rotatePoint(S_end, pointsToRotate[i], angleToRotate));
   }
 
-  // Fetch the W1_size value
-  const W1_size = parseFloat(document.getElementById('W1_size').value); // Assuming you have an input element with id 'W1_size'
+
+
+
+
+
+
+
+  // Calculate bottom direct common tangent of W1 and W2
+  const dSquared = Math.pow(S_end.x - T_end.x, 2) + Math.pow(S_end.y - T_end.y, 2);
+  const d = Math.sqrt(dSquared);
+  
+  const theta = -Math.atan2(S_end.y - T_end.y, S_end.x - T_end.x);
+  const alpha = Math.asin((W2_size - W1_size) / d);
+  
+  const tangentAx = T_end.x - W1_size * Math.sin(theta + alpha);
+  const tangentAy = T_end.y - W1_size * Math.cos(theta + alpha);
+  
+  const tangentPointA = new THREE.Vector3(tangentAx, tangentAy, 0);
+  
+  const tangentBx = S_end.x - W2_size * Math.sin(theta + alpha);
+  const tangentBy = S_end.y - W2_size * Math.cos(theta + alpha);
+
+  const tangentPointB = new THREE.Vector3(tangentBx, tangentBy, 0);
+
+  
+  // Calculate angle of the tangent line with respect to the X-axis
+  const tangentAngle = Math.atan2(tangentPointB.y - tangentPointA.y, tangentPointB.x - tangentPointA.x);
+
+  // We want the tangent line to be parallel to X-axis. So, our desired rotation is -tangentAngle
+  const rotationAngle = -tangentAngle;
+
+  // Calculate the midpoint of the tangent line
+  const tangentMidpoint = new THREE.Vector3(
+    (tangentPointA.x + tangentPointB.x) / 2,
+    (tangentPointA.y + tangentPointB.y) / 2,
+    0
+  );
+
+  // Rotate all objects around the tangentMidpoint
+  const allPoints = [B_start, B_end, A_end, D_end, F_end, T_end, S_end, tangentPointA, tangentPointB];
+  for (let i = 0; i < allPoints.length; i++) {
+    allPoints[i].copy(rotatePoint(tangentMidpoint, allPoints[i], rotationAngle));
+  }
+
+  // Determine the y-offset required to move the tangent line to the ground plane
+  const yOffset = tangentMidpoint.y;
+
+  // Translate every point by this y-offset
+  for (let point of allPoints) {
+    point.y -= yOffset;
+  }
+
+
+
+
+
+
+  // Draw the tangent line
+  addLine(tangentPointA, tangentPointB, 0xffffff); // White color for the tangent
+
+
   // Create a ring geometry that looks like a circle line
   const ringThickness = 0.001; // adjust this value as necessary
   const circleGeometry = new THREE.RingBufferGeometry(W1_size - ringThickness, W1_size, 32);
@@ -118,15 +177,15 @@ function updateLines() {
   circleLine.position.set(T_end.x, T_end.y, T_end.z);
   scene.add(circleLine);
 
-  // Fetch the W2_size value
-  const W2_size = parseFloat(document.getElementById('W2_size').value); // Assuming you have an input element with id 'W1_size'
+
+  // Create a ring geometry that looks like a circle line
+  
   const circleGeometry2 = new THREE.RingBufferGeometry(W2_size - ringThickness, W2_size, 32);
-  const circleLine2 = new THREE.LineLoop(circleGeometry2, circleMaterial);
+  const circleMaterial2 = new THREE.LineBasicMaterial({ color: 0xffff00 }); // Black color
+  const circleLine2 = new THREE.LineLoop(circleGeometry2, circleMaterial2);
   circleLine2.position.set(S_end.x, S_end.y, S_end.z);
   scene.add(circleLine2);
 
-
-  
 
   // Create a small sphere geometry to represent the point
   const geometry = new THREE.SphereGeometry(0.1, 32, 32); // Increase radius to make it more visible
