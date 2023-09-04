@@ -1,66 +1,113 @@
+import * as THREE from './three.module.js'; 
+import { OrbitControls } from './OrbitControls.js';
 
+// Initialize scene, camera, renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 50;
-
 const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
 
-function updateLines() {
-  // Clear the scene by removing all objects
-  while (scene.children.length > 0) {
-      scene.remove(scene.children[0]);
+initializeScene();
+
+
+
+function initializeScene() {
+  camera.position.z = 50;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // Inputs to be monitored for changes
+  const inputsToUpdate = [
+    'B_length', 'A_length', 'B_angle', 'D_angle',
+    'B_drop', 'F_length', 'H_length', 'S_length', 'T_length', 'W1_size', 'W2_size'
+  ];
+
+  for (let input of inputsToUpdate) {
+    document.getElementById(input).addEventListener('input', updateLines);
   }
 
-  // Parameters
-  const B_length = document.getElementById('B_length').value;
-  const A_length = document.getElementById('A_length').value;
-  const B_angle_degrees = document.getElementById('B_angle').value;
-  const B_angle = B_angle_degrees * (Math.PI / 180);
-  const H_length = document.getElementById('H_length').value; // New parameter
-  const D_length = document.getElementById('D_length').value;
-  const D_angle_degrees = document.getElementById('D_angle').value;
-  const D_angle = D_angle_degrees * (Math.PI / 180);
-  const B_drop = parseFloat(document.getElementById('B_drop').value);
-  const F_length = parseFloat(document.getElementById('F_length').value); // New parameter
-  const S_length = document.getElementById('S_length').value;
-  const T_length = parseFloat(document.getElementById('T_length').value);
-  const W1_size = parseFloat(document.getElementById('W1_size').value); 
-  const W2_size = parseFloat(document.getElementById('W2_size').value); 
+  updateLines();
+  
+}
+
+const controls = new OrbitControls(camera, renderer.domElement);
+
+
+
+
+
+// This function retrieves and updates all parameters
+function updateParameters() {
+  const B_angle_degrees = parseFloat(document.getElementById('B_angle').value);
+  const D_angle_degrees = parseFloat(document.getElementById('D_angle').value);
+  const params = {
+      B_length: parseFloat(document.getElementById('B_length').value),
+      A_length: parseFloat(document.getElementById('A_length').value),
+      B_angle: B_angle_degrees * (Math.PI / 180),
+      H_length: parseFloat(document.getElementById('H_length').value), 
+      D_angle: D_angle_degrees * (Math.PI / 180),
+      B_drop: parseFloat(document.getElementById('B_drop').value),
+      F_length: parseFloat(document.getElementById('F_length').value), 
+      S_length: parseFloat(document.getElementById('S_length').value),
+      T_length: parseFloat(document.getElementById('T_length').value),
+      W1_size: parseFloat(document.getElementById('W1_size').value),
+      W2_size: parseFloat(document.getElementById('W2_size').value), 
+  };
+  console.log(params);
+  return params;
+}
+
+// This function creates a line using two vectors and a color
+function addLine(v1, v2, color) {
+  if (isNaN(v1.x) || isNaN(v1.y) || isNaN(v1.z) || isNaN(v2.x) || isNaN(v2.y) || isNaN(v2.z)) {
+    console.error('NaN detected in vectors:', v1, v2, 'Called from:', new Error().stack);
+    return;
+  }
+  const points = [];
+  points.push(v1);
+  points.push(v2);
+
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const material = new THREE.LineBasicMaterial({ color });
+  const line = new THREE.Line(geometry, material);
+  scene.add(line);
+}
+
+// This function CALCULATES the geometry
+function calculateGeometry(params) {
 
   // Hypotenuse value (c) and A_end_Y calculation
-  const c = parseFloat(F_length) + parseFloat(H_length); // convert F_length to a number and add 5
-  const A_end_Y = c * Math.cos(D_angle); // a = c * cos(β)
+  const c = parseFloat(params.F_length) + parseFloat(params.H_length); // convert F_length to a number and add 5
+  const A_end_Y = c * Math.cos(params.D_angle); // a = c * cos(β)
 
   // Calculate B's start and end positions
-  const B_start = new THREE.Vector3(0, B_drop, 0); // Start of B is translated downward by B_drop
+  const B_start = new THREE.Vector3(0, params.B_drop, 0); // Start of B is translated downward by B_drop
   const B_end = new THREE.Vector3(
-    B_length * Math.sin(B_angle),
-    B_length * Math.cos(B_angle) + B_drop, // End of B is translated downward by B_drop
+    params.B_length * Math.sin(params.B_angle),
+    params.B_length * Math.cos(params.B_angle) + params.B_drop, // End of B is translated downward by B_drop
     0
   );
 
   // Calculate S's position
-  const S_angle = Math.acos(B_start.y / S_length);
+  const S_angle = Math.acos(B_start.y / params.S_length);
   const S_end = new THREE.Vector3(
-    B_start.x + S_length * Math.sin(S_angle),
+    B_start.x + params.S_length * Math.sin(S_angle),
     0,
     0
   );
 
   // Calculate A's positions
-  const A_angle = Math.acos((A_end_Y - B_end.y) / A_length);
+  const A_angle = Math.acos((A_end_Y - B_end.y) / params.A_length);
   const A_end = new THREE.Vector3(
-    B_end.x - A_length * Math.sin(A_angle),
+    B_end.x - params.A_length * Math.sin(A_angle),
     A_end_Y,
     0
   );
 
   // Calculate D's position
+  const D_length = 1
   const D_end = new THREE.Vector3(
-    A_end.x + D_length * Math.sin(D_angle),
-    A_end.y - D_length * Math.cos(D_angle),
+    A_end.x + D_length * Math.sin(params.D_angle),
+    A_end.y - D_length * Math.cos(params.D_angle),
     0
   );
 
@@ -73,18 +120,18 @@ function updateLines() {
 
   // Calculate F's endpoint
   const F_end = new THREE.Vector3(
-    D_end.x - F_length * Math.sin(D_angle),
-    D_end.y + F_length * Math.cos(D_angle),
+    D_end.x - params.F_length * Math.sin(params.D_angle),
+    D_end.y + params.F_length * Math.cos(params.D_angle),
     0
   );
   
   // Calculate T's direction, which is perpendicular to D
-  const T_angle = D_angle + Math.PI;
+  const T_angle = params.D_angle + Math.PI;
 
   // Calculate T's end position
   const T_end = new THREE.Vector3(
-    D_end.x + T_length * Math.cos(T_angle),
-    D_end.y + T_length * Math.sin(T_angle),
+    D_end.x + params.T_length * Math.cos(T_angle),
+    D_end.y + params.T_length * Math.sin(T_angle),
     0
   );
 
@@ -108,31 +155,23 @@ function updateLines() {
     pointsToRotate[i].copy(rotatePoint(S_end, pointsToRotate[i], angleToRotate));
   }
 
-
-
-
-
-
-
-
   // Calculate bottom direct common tangent of W1 and W2
   const dSquared = Math.pow(S_end.x - T_end.x, 2) + Math.pow(S_end.y - T_end.y, 2);
   const d = Math.sqrt(dSquared);
   
   const theta = -Math.atan2(S_end.y - T_end.y, S_end.x - T_end.x);
-  const alpha = Math.asin((W2_size - W1_size) / d);
+  const alpha = Math.asin((params.W2_size - params.W1_size) / d);
   
-  const tangentAx = T_end.x - W1_size * Math.sin(theta + alpha);
-  const tangentAy = T_end.y - W1_size * Math.cos(theta + alpha);
+  const tangentAx = T_end.x - params.W1_size * Math.sin(theta + alpha);
+  const tangentAy = T_end.y - params.W1_size * Math.cos(theta + alpha);
   
   const tangentPointA = new THREE.Vector3(tangentAx, tangentAy, 0);
   
-  const tangentBx = S_end.x - W2_size * Math.sin(theta + alpha);
-  const tangentBy = S_end.y - W2_size * Math.cos(theta + alpha);
+  const tangentBx = S_end.x - params.W2_size * Math.sin(theta + alpha);
+  const tangentBy = S_end.y - params.W2_size * Math.cos(theta + alpha);
 
   const tangentPointB = new THREE.Vector3(tangentBx, tangentBy, 0);
 
-  
   // Calculate angle of the tangent line with respect to the X-axis
   const tangentAngle = Math.atan2(tangentPointB.y - tangentPointA.y, tangentPointB.x - tangentPointA.x);
 
@@ -160,38 +199,48 @@ function updateLines() {
     point.y -= yOffset;
   }
 
+  return {
+    B_start, B_end, A_end, D_end, F_end, T_end, S_end,
+    tangentPointA, tangentPointB,
+    params // Pass the params object as well for further use in the drawing function.
+  };
+}
 
-
-
-
+// This function RENDERS the geometry
+function drawGeometry(geometry) {
+  // Get updated parameters
+  const {
+    B_start, B_end, A_end, D_end, F_end, T_end, S_end,
+    tangentPointA, tangentPointB,
+    params
+  } = geometry;
+  
 
   // Draw the tangent line
   addLine(tangentPointA, tangentPointB, 0xffffff); // White color for the tangent
-
-
-  // Create a ring geometry that looks like a circle line
+  
+  // Create a ring geometry for W1
   const ringThickness = 0.001; // adjust this value as necessary
-  const circleGeometry = new THREE.RingBufferGeometry(W1_size - ringThickness, W1_size, 32);
-  const circleMaterial = new THREE.LineBasicMaterial({ color: 0xffff00 }); // Black color
+  const circleGeometry = new THREE.RingBufferGeometry(params.W1_size - ringThickness, params.W1_size, 32);
+  const circleMaterial = new THREE.LineBasicMaterial({ color: 0xffff00 }); 
   const circleLine = new THREE.LineLoop(circleGeometry, circleMaterial);
   circleLine.position.set(T_end.x, T_end.y, T_end.z);
   scene.add(circleLine);
 
 
-  // Create a ring geometry that looks like a circle line
-  
-  const circleGeometry2 = new THREE.RingBufferGeometry(W2_size - ringThickness, W2_size, 32);
-  const circleMaterial2 = new THREE.LineBasicMaterial({ color: 0xffff00 }); // Black color
+  // Create a ring geometry for W2
+  const circleGeometry2 = new THREE.RingBufferGeometry(params.W2_size - ringThickness, params.W2_size, 32);
+  const circleMaterial2 = new THREE.LineBasicMaterial({ color: 0xffff00 }); 
   const circleLine2 = new THREE.LineLoop(circleGeometry2, circleMaterial2);
   circleLine2.position.set(S_end.x, S_end.y, S_end.z);
   scene.add(circleLine2);
 
 
   // Create a small sphere geometry to represent the point
-  const geometry = new THREE.SphereGeometry(0.1, 32, 32); // Increase radius to make it more visible
-  const material = new THREE.MeshBasicMaterial({ color: 0xffff00 }); // Yellow color
-  const sphere = new THREE.Mesh(geometry, material);
-  const sphere2 = new THREE.Mesh(geometry, material);
+  const dotGeometry = new THREE.SphereGeometry(0.1, 32, 32); // Increase radius to make it more visible
+  const material = new THREE.MeshBasicMaterial({ color: 0xffff00 }); 
+  const sphere = new THREE.Mesh(dotGeometry, material);
+  const sphere2 = new THREE.Mesh(dotGeometry, material);
   // Set the position of the sphere to the intersection point
   sphere.position.set(T_end.x, T_end.y, T_end.z);
   sphere2.position.set(S_end.x, 0, 0);
@@ -201,53 +250,52 @@ function updateLines() {
   
 
   // Add lines
-  addLine(B_start, B_end, 0x0000ff); // Side B
-  addLine(B_end, A_end, 0x00ff00); // Side A
-  addLine(A_end, D_end, 0xff00ff); // Side D
-  addLine(D_end, F_end, 0x00ffff); // Side F (new line)
-  addLine(F_end, B_start, 0xff0000); // Side C (adjusted)
-  addLine(B_start, S_end, 0xabcdef); // Side S
+  addLine(B_start, B_end, 0x0000ff);
+  addLine(B_end, A_end, 0x00ff00); 
+  addLine(A_end, D_end, 0xff00ff); 
+  addLine(D_end, F_end, 0x00ffff); 
+  addLine(F_end, B_start, 0xff0000); 
+  addLine(B_start, S_end, 0xabcdef); 
   addLine(B_end, S_end, 0x123456);
-  addLine(D_end, T_end, 0x987654); // Side T
-
-
- 
-
-
-  function addLine(v1, v2, color) {
-      const points = [];
-      points.push(v1);
-      points.push(v2);
-    
-      const geometry = new THREE.BufferGeometry().setFromPoints(points);
-      const material = new THREE.LineBasicMaterial({ color });
-      const line = new THREE.Line(geometry, material);
-      scene.add(line);
-    }
-    
-
-
-  function animate() {
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-  }
-
-  animate();
+  addLine(D_end, T_end, 0x987654); 
+  
 }
 
-// Call this function when the page is loaded
-updateLines();
 
-document.getElementById('B_length').addEventListener('input', updateLines);
-document.getElementById('A_length').addEventListener('input', updateLines);
-document.getElementById('B_angle').addEventListener('input', updateLines);
-document.getElementById('A_end_Y').addEventListener('input', updateLines);
-document.getElementById('D_length').addEventListener('input', updateLines);
-document.getElementById('D_angle').addEventListener('input', updateLines);
-document.getElementById('B_drop').addEventListener('input', updateLines);
-document.getElementById('F_length').addEventListener('input', updateLines);
-document.getElementById('H_length').addEventListener('input', updateLines);
-document.getElementById('S_length').addEventListener('input', updateLines);
-document.getElementById('T_length').addEventListener('input', updateLines);
-document.getElementById('W1_size').addEventListener('input', updateLines);
-document.getElementById('W2_size').addEventListener('input', updateLines);
+function updateLines() {
+  // Get updated parameters
+  const params = updateParameters();
+  
+  // Clear the scene by removing all objects
+  while (scene.children.length > 0) {
+      scene.remove(scene.children[0]);
+  }
+
+  // Re-add the ground plane
+  addGroundPlane();
+
+  const geometry = calculateGeometry(params);
+  drawGeometry(geometry);
+}
+
+function addGroundPlane() {
+  // ... (your existing code for adding a ground plane)
+  const planeGeometry = new THREE.PlaneGeometry(1000, 1000); // Geometry for the ground
+  const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x1f1f1f, side: THREE.DoubleSide }); // Material for the ground (using a basic gray color here)
+  const ground = new THREE.Mesh(planeGeometry, planeMaterial); // Create the ground mesh using the geometry and material
+  ground.rotation.x = Math.PI / 2; // Rotate the ground to be horizontal (planes are vertical by default)
+  scene.add(ground);// Add the ground to the scene
+  
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(1, 2, 4);  // Position of the light source
+  scene.add(light);
+}
+
+
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+
+updateLines();
+animate();
