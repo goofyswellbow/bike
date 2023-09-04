@@ -8,8 +8,6 @@ const renderer = new THREE.WebGLRenderer();
 
 initializeScene();
 
-
-
 function initializeScene() {
   camera.position.z = 50;
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -30,10 +28,6 @@ function initializeScene() {
 }
 
 const controls = new OrbitControls(camera, renderer.domElement);
-
-
-
-
 
 // This function retrieves and updates all parameters
 function updateParameters() {
@@ -261,7 +255,6 @@ function drawGeometry(geometry) {
   
 }
 
-
 function updateLines() {
   // Get updated parameters
   const params = updateParameters();
@@ -290,7 +283,6 @@ function addGroundPlane() {
   light.position.set(1, 2, 4);  // Position of the light source
   scene.add(light);
 }
-
 
 function animate() {
   requestAnimationFrame(animate);
