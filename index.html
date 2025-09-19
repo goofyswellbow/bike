@@ -1,117 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>three.js webgl - geometry hierarchy</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<style>
-            body {
-	            background-color: black;
-	            color: white;
-	        }
-	        #controls {
-	            position: absolute;
-	            top: 10px;
-	            left: 10px;
-	        }
-	    </style>
-	</head>
-
-	<body>
-
-    <div id="controls">
-        
-        <label for="frontAxel_Z">dev_Front Axel: </label><input id="frontAxel_Z" type="range" min="0" max="10" step="0.1" value="1"><span id="frontAxel_Z_value">1</span><br>
-        <label for="midAxel_Z">dev_Mid Axel: </label><input id="midAxel_Z" type="range" min="0" max="10" step="0.1" value="1"><span id="midAxel_Z_value">1</span><br>
-        <label for="rearAxel_Z">dev_Rear Axel: </label><input id="rearAxel_Z" type="range" min="0" max="10" step="0.1" value="1"><span id="rearAxel_Z_value">1</span><br>
-        <br>
-        <label for="BB_BaseHeight">BB BaseHeight: </label><input id="BB_BaseHeight" type="range" min="0" max="10" step="0.1" value="0.4"><span id="BB_BaseHeight_value">0.4</span><br>
-        <label for="BB_SpacerWidth">BB SpacerWidth: </label><input id="BB_SpacerWidth" type="range" min="0" max="0.5" step="0.01" value="0.5"><span id="BB_SpacerWidth_value">0.5</span><br>
-        <label for="BB_SpacerCount">BB_SpacerCount: </label><input id="BB_SpacerCount" type="range" min="0" max="10" step="1" value="1"><span id="BB_SpacerCount_value">1</span><br>
-        <label for="SpktAttachDistance">dev_SpktAttachDistance: </label><input id="SpktAttachDistance" type="range" min="0" max="10" step="0.1" value="1"><span id="SpktAttachDistance_value">1</span><br>
-        <label for="CrankAttachDistance">dev_CrankAttachDistance: </label><input id="CrankAttachDistance" type="range" min="0" max="10" step="0.1" value="1"><span id="CrankAttachDistance_value">1</span><br>
-        <label for="CrankLength">CrankLength: </label><input id="CrankLength" type="range" min="0" max="10" step="0.1" value="6"><span id="CrankLength_value">6</span><br>
-        <label for="CrankOffset">dev_CrankOffset: </label><input id="CrankOffset" type="range" min="0" max="10" step="0.1" value="0"><span id="CrankOffset_value">0</span><br>
-
-
-
-        <br>
-        <label for="A_length">A Length: </label><input id="A_length" type="range" min="12" max="30" step="0.1" value="21"><span id="A_length_value">21</span><br>
-        <label for="B_length">B Length: </label><input id="B_length" type="range" min="5" max="15" step="0.1" value="8.5"><span id="B_length_value">8.5</span><br>
-        <label for="B_angle">B Angle: </label><input id="B_angle" type="range" min="-90" max="90" step="1" value="15"><span id="B_angle_value">15</span><br>
-        <label for="B_drop">B Drop: </label><input id="B_drop" type="range" min="-5" max="5" step="0.1" value="0"><span id="B_drop_value">0</span><br>
-        <label for="H_length">H Length: </label><input id="H_length" type="range" min="1" max="5" step="0.1" value="3"><span id="H_length_value">3</span><br>
-        <label for="D_angle">D Angle: </label><input id="D_angle" type="range" min="-45" max="0" step="1" value="-15"><span id="D_angle_value">-15</span><br>
-        <br>
-        <label for="T_length">T Length: </label><input id="T_length" type="range" min="0" max="2" step="0.1" value="1"><span id="T_length_value">1</span><br>
-        <label for="F_length">F Length: </label><input id="F_length" type="range" min="5" max="20" step="0.1" value="12"><span id="F_length_value">12</span><br>
-        <label for="F_mode">F Mode: </label><input id="F_mode" type="range" min="0" max="1" step="1" value="0"><span id="F_mode_value">0</span><br>
-        <label for="F_const">F Constant: </label><input id="F_const" type="range" min="0" max="10" step="0.1" value="2.5"><span id="F_const_value">2.5</span><br>
-        <br>
-        <label for="S_length">S Length: </label><input id="S_length" type="range" min="5" max="20" step="0.1" value="13"><span id="S_length_value">13</span><br>
-        <label for="S_mode">S Mode: </label><input id="S_mode" type="range" min="0" max="1" step="1" value="0"><span id="S_mode_value">0</span><br>
-        <label for="S_const">S Constant: </label><input id="S_const" type="range" min="0" max="10" step="0.1" value="2.5"><span id="S_const_value">2.5</span><br>
-        <br>
-        <label for="R1_size">R1 Size: </label><input id="R1_size" type="range" min="4" max="14" step="0.1" value="8"><span id="R1_size_value">8</span><br>
-        <label for="T1_size">T1 Size: </label><input id="T1_size" type="range" min="0" max="14" step="0.1" value="2"><span id="T1_size_value">2</span><br>
-        <br>
-        <label for="R2_size">R2 Size: </label><input id="R2_size" type="range" min="4" max="14" step="0.1" value="8"><span id="R2_size_value">8</span><br>
-        <label for="T2_size">T2 Size: </label><input id="T2_size" type="range" min="0" max="14" step="0.1" value="2"><span id="T2_size_value">2</span><br>
-        <br>
-        <label for="Z_length">Z_length: </label><input id="Z_length" type="range" min="1" max="10" step="0.1" value="2"><span id="Z_length_value">2</span><br>
-        <label for="P_length">dev_P Length: </label><input id="P_length" type="range" min="0" max="10" step="0.1" value="1"><span id="P_length_value">1</span><br>
-        <br>
-        <label for="D_width">dev_D Width: </label><input id="D_width" type="range" min="0" max="1" step="0.01" value="0.5"><span id="D_width_value">0.5</span><br>
-        <label for="D2_count">D2 Count: </label><input id="D2_count" type="range" min="7" max="45" step="1" value="25"><span id="D2_count_value">25</span><br>
-        <label for="D1_count">D1 Count: </label><input id="D1_count" type="range" min="7" max="45" step="1" value="9"><span id="D1_count_value">9</span><br>
-        <br>
-        <label for="HS_StemCenter">dev_HS_StemCenter: </label><input id="HS_StemCenter" type="range" min="0" max="10" step="0.1" value="1"><span id="HS_StemCenter_value">1</span><br>
-        <label for="HS_BaseHeight">HS_BaseHeight: </label><input id="HS_BaseHeight" type="range" min="0" max="10" step="0.1" value="0.4"><span id="HS_BaseHeight_value">0.4</span><br>
-        <label for="HS_SpacerWidth">HS_SpacerWidth: </label><input id="HS_SpacerWidth" type="range" min="0" max="0.5" step="0.01" value="0.5"><span id="HS_SpacerWidth_value">0.5</span><br>
-        <label for="HS_SpacerCount">HS_SpacerCount: </label><input id="HS_SpacerCount" type="range" min="0" max="10" step="1" value="1"><span id="HS_SpacerCount_value">1</span><br>
-        <label for="L_length">L_length: </label><input id="L_length" type="range" min="0" max="10" step="0.1" value="1.5"><span id="L_length_value">1.5</span><br>
-        <label for="R_length">R_length: </label><input id="R_length" type="range" min="-2" max="2" step="0.1" value="0.5"><span id="R_length_value">0.5</span><br>
-        <br>
-        <label for="B_height">Bar Height: </label><input id="B_height" type="range" min="0" max="10" step="0.1" value="7.7"><span id="B_height_value">7.7</span><br>
-        <label for="B_width">Bar Width: </label><input id="B_width" type="range" min="0" max="10" step="0.1" value="8.8"><span id="B_width_value">8.8</span><br>
-        <label for="Bg_width">Grip Width: </label><input id="Bg_width" type="range" min="0" max="10" step="0.1" value="3.8"><span id="Bg_width_value">3.8</span><br>
-        <label for="upsweep">Upsweep: </label><input id="upsweep" type="range" min="0" max="10" step="0.1" value="1"><span id="upsweep_value">1</span><br>
-        <label for="backsweep">Backsweep: </label><input id="backsweep" type="range" min="0" max="10" step="0.1" value="1"><span id="backsweep_value">1</span><br>
-        <label for="B_rotation">Bar Rotation: </label><input id="B_rotation" type="range" min="-10" max="10" step="0.1" value="0"><span id="B_rotation_value">0</span><br>
-        <br>
-
-        
-
-    </div>
-    <script type="module" src="bike.js"></script>
-    <script>
-        // Array of IDs for the sliders
-        const sliderIds = [
-            'A_length', 'B_length', 'B_angle', 'B_drop', 
-            'H_length', 'D_angle', 'F_length', 'T_length', 
-            'S_length',
-            'D2_count', 'D1_count','D_width',
-            'Z_length','P_length',
-            'HS_BaseHeight','HS_SpacerWidth','HS_SpacerCount','HS_StemCenter','L_length','R_length',
-            'F_mode', 'F_const',
-            'S_mode', 'S_const',
-            'R1_size', 'T1_size', 'R2_size', 'T2_size',
-            'B_height', 'B_width', 'Bg_width', 'upsweep','backsweep','B_rotation',
-            'frontAxel_Z', 'midAxel_Z', 'rearAxel_Z',
-            'BB_BaseHeight', 'BB_SpacerWidth', 'BB_SpacerCount', 'SpktAttachDistance', 'CrankAttachDistance', 'CrankLength', 'CrankOffset'
-        ];
-        
-        sliderIds.forEach(id => {
-            const slider = document.getElementById(id);
-            const valueDisplay = document.getElementById(id + '_value');
-            
-            slider.addEventListener('input', function() {
-                valueDisplay.innerText = slider.value;
-            });
-        });
-    </script>
-    
-
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proto.Bike</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <script type="module" src="js/main.js"></script>
 </body>
-
 </html>
